@@ -1,8 +1,8 @@
-#include <iostream.h>
-#include <fstream.h>
-#include <string.h>
-#include <conio.h>
-#include <iomanip.h>
+#include <iostream>
+#include <fstream>
+#include <string>
+#include <conio>
+#include <iomanip>
 
 using namespace std;
 
@@ -100,6 +100,7 @@ short BusLinVec(vArticulos lstArticulos, str3 codArticulo, short card)
 
 short BusBinVec(vClientes lstClientes, str8 idCliente, int card)
 {
+    cout << "card" << card << endl;
   int ult = card - 1;
   int prim = 0;
   int med;
@@ -152,6 +153,10 @@ void ProcClientes(ifstream &clientesFile, vClientes lstClientes, short &canCli)
   while (LeerCli(clientesFile, cliente))
   {
     InsertarEnOrden(lstClientes, cliente.idCliente, canCli);
+  }
+
+  for (int i = 0; i < canCli; i++) {
+    cout << lstClientes[i].idCliente << " - " <<  lstClientes[i].posicion << endl;
   }
 }
 
@@ -276,47 +281,61 @@ void CalcDetFac(int &cantidad, Articulo &art, short &numOrden, float &totalItem,
     totalFactura += totalItem;
 } // CalcDetFac
 
+void EmitPieFac(ofstream &Facturas,float totalFactura) {
+
+float ivaFactura = totalFactura * 0.21;
+
+Facturas << '\n' <<setw(80) << "Tot.Bruto : " << totalFactura << '\n'
+         << setw(80) << "IVA 21%   : " << ivaFactura << '\n'
+         << setw(80) << "Total Neto: " << (totalFactura + ivaFactura) << '\n';
+}
+
 void ProcPedidos(ifstream &Pedidos, ifstream &Clientes, ofstream &Facturas, ofstream &MvtosPedidos, vClientes lstClientes, short canCli, vArticulos lstArticulos, short canArt)
 {
   short posicion;
+
   Pedido pedido;
   sCli cliente;
   Articulo articulo;
   sFec fecha;
 
-  float totalFactura = 0;
   short numOrden = 1;
   int numFactura = 2223200;
+  GetDate(fecha.year, fecha.mes, fecha.dia, fecha.dsem);
 
-    bool pedidoLeido = LeerPed(Pedidos, pedido);
+ bool pedidoLeido = LeerPed(Pedidos, pedido);
 
   while (pedidoLeido)
   {
     posicion = BusBinVec(lstClientes, pedido.idCliente, canCli);
-    cout << (posicion >= 0 ? "Cliente Encontrado" : " Cliente No encontrado") << endl;
+     cout << " " << endl;
     if (posicion >= 0)
     {
-      cout << "Leyendo pedido numero " << numOrden << endl;
+      float totalFactura = 0;
       LeerCliByPosicion(Clientes, cliente, posicion);
       cout << "pedido de cliente: " << cliente.razSoc << endl;
-      GetDate(fecha.year, fecha.mes, fecha.dia, fecha.dsem);
       EmiteCabFac(Facturas, cliente, fecha, numFactura);
-
-    //cout << (artEncontrado ? "Art Encontrado" : " Art No encontrado") << endl;
-      cout << "Articulo pedido: " << articulo.codArticulo << " - " << pedido.codArticulo << endl;
+        numFactura++;
       while (pedidoLeido && strcmp(pedido.idCliente, cliente.idCliente) == 0)
       {
+        cout << "Analizando pedido (idCliente: " << pedido.idCliente << " articulo: " << pedido.codArticulo << " cantidad: " << pedido.cantPedida << ")" << endl;
+
         float totalItem = 0;
         BuscarArticuloPorCodigo(lstArticulos, pedido.codArticulo, articulo, canArt);
 
         CalcDetFac(pedido.cantPedida, articulo,numOrden,totalItem,totalFactura);
 
         EmiteDetFac(Facturas, articulo,numOrden, pedido.cantPedida, totalItem);
+
         pedidoLeido = LeerPed(Pedidos, pedido);
       }
-    }
-    pedidoLeido = LeerPed(Pedidos, pedido);
-   cout << "Pedidonuevo: " << pedido.idCliente << " - " << pedido.codArticulo << endl;
+        EmitPieFac(Facturas, totalFactura);
+
+    } else {
+            cout << "Cliente " << pedido.idCliente << " no encontrado, posicion: " << posicion << endl;
+
+            pedidoLeido = LeerPed(Pedidos, pedido);
+        }
   }
 };
 
