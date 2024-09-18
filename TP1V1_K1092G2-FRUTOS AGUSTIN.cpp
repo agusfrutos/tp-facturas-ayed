@@ -1,5 +1,21 @@
 /*
+    # Trabajo Práctico #1:
+    Metodología-DP-ECP-Módulos-ED: Registro, Arreglo y Archivo texto.
+    Proceso de facturación y armado de pedidos de clientes.
 
+    # Fecha entrega: 25/09/2024
+
+    # Versión: 1.0.0
+
+    # Comisión: K1092 Miercoles Turno noche,
+
+    # Integrantes de Grupo 2:
+     Agustin Frutos  222.320-0
+     Alexis Pieronee 222.600-5
+     Nicolas Mancuso 222.481-1
+     Lautaro Velozo  221.258-4
+
+    # Nombre del compilador: Borland C++ V.5.5
 */
 #include <iostream.h>
 #include <fstream.h>
@@ -10,6 +26,8 @@
 using namespace std;
 
 #define IVA 0.21
+#define MAX_CLI 1000
+#define MAX_ART 100
 typedef unsigned short ushort;
 typedef char str3[4];
 typedef char str8[9];
@@ -50,10 +68,10 @@ struct sPed
 {
   str8 idCliente;
   str3 codArticulo;
-  short cantPedida; // max 4 dig
+  ushort cantPedida;
 };
-typedef sCliIndice tvrClientes[1001];
-typedef sArt tvrArticulos[101];
+typedef sCliIndice tvrClientes[MAX_CLI-1];
+typedef sArt tvrArticulos[MAX_ART-1];
 
 string replicate(char car, unsigned n)
 {
@@ -65,7 +83,6 @@ string replicate(char car, unsigned n)
 
 long GetDate(int &year, int &mes, int &dia)
 {
-
   time_t rawtime;
   struct tm *timeinfo;
 
@@ -104,7 +121,6 @@ short BusBinVec(tvrClientes vrClientes, str8 idCliente, short card)
   int ult = card - 1;
   int prim = 0;
   int med;
-  int contador = 1;
   while (prim <= ult)
   {
     med = (prim + ult) / 2;
@@ -115,8 +131,6 @@ short BusBinVec(tvrClientes vrClientes, str8 idCliente, short card)
       prim = med + 1;
     else
       ult = med - 1;
-
-    contador++;
   }
   return -1;
 } // BusBinVec
@@ -152,10 +166,7 @@ bool LeerCli(ifstream &Clientes, sCliIndice &cliente)
 void ProcClientes(ifstream &Clientes, tvrClientes vrClientes, short &canCli)
 {
   sCliIndice cliente;
-  while (LeerCli(Clientes, cliente))
-  {
-    InsertarEnOrden(vrClientes, cliente.idCliente, canCli);
-  }
+  while (LeerCli(Clientes, cliente)) InsertarEnOrden(vrClientes, cliente.idCliente, canCli);
 }
 
 bool LeerArt(ifstream &Articulos, sArt &articulo)
@@ -176,7 +187,6 @@ bool LeerArt(ifstream &Articulos, sArt &articulo)
 void AcumProductos(tvrArticulos vrArticulos, sArt articulo, short &canArt)
 {
   short posicion;
-
   posicion = BusLinVec(vrArticulos, articulo.codArticulo, canArt);
   if (posicion > canArt)
   {
@@ -197,9 +207,7 @@ void ProcArticulos(ifstream &Articulos, tvrArticulos vrArticulos, short &canArt)
 
 bool LeerPed(ifstream &Pedidos, sPed &pedido)
 {
-  if (Pedidos.eof())
-    return false;
-
+  if (Pedidos.eof()) return false;
   Pedidos.get(pedido.idCliente, 9);
   Pedidos.ignore(1);
   Pedidos.get(pedido.codArticulo, 4);
@@ -211,10 +219,6 @@ bool LeerPed(ifstream &Pedidos, sPed &pedido)
 
 void LeerCliByPosicion(ifstream &Clientes, sCli &cliente, short posicion)
 {
-  // dudas:
-  // # la fechaAlta no se usa en todo el programa
-  // # deberia calcular si llega con el saldo a los productos comprados?
-
   Clientes.clear();
   Clientes.seekg(posicion * 100, ios::beg);
   Clientes.get(cliente.idCliente, 9);
@@ -238,7 +242,6 @@ void LeerCliByPosicion(ifstream &Clientes, sCli &cliente, short posicion)
 
 void EmiteCabFac(ofstream &Facturas, sCli cliente, sFec fecha, int numFactura)
 {
-
   Facturas << replicate('-', 92) << '\n'
            << setw(10) << "Id.Cliente" << left << "  " << setw(24) << "Razon Social" << setw(24) << "Domicilio" << setw(24) << "Localidad" << setw(12) << "Cod.Pos." << '\n'
            << right << setw(10) << cliente.idCliente << left << "  " << setw(24) << cliente.razSoc << setw(24) << cliente.domic << setw(24) << cliente.localidad << setw(12) << cliente.codPos << '\n'
@@ -263,12 +266,12 @@ short BuscarArticuloPorCodigo(tvrArticulos vrArticulos, str3 codArticulo, sArt &
   return 0;
 } // BuscarArticuloPorCodigo
 
-void EmiteDetFac(ofstream &Facturas, sArt art, short numOrden, short cantPedida, float totalImporte)
+void EmiteDetFac(ofstream &Facturas, sArt art, short numOrden, short cantPedida, double totalImporte)
 {
   Facturas << setw(15) << numOrden << setw(13) << art.codArticulo << setw(22) << art.descripcion << setw(9) << cantPedida << setw(12) << art.precioUnitario << setw(12) << totalImporte << '\n';
 } // EmiteDetFac
 
-void CalcDetFac(int cantidad, sArt &art, short &numOrden, float &totalItem, float &totalFactura)
+void CalcDetFac(int cantidad, sArt &art, short &numOrden, double &totalItem, double &totalFactura)
 {
   numOrden++;
   totalItem = cantidad * art.precioUnitario;
@@ -276,16 +279,16 @@ void CalcDetFac(int cantidad, sArt &art, short &numOrden, float &totalItem, floa
   totalFactura += totalItem;
 } // CalcDetFac
 
-void EmitPieFac(ofstream &Facturas, float totalFactura)
+void EmitPieFac(ofstream &Facturas, double totalFactura)
 {
-  float ivaFactura = totalFactura * IVA;
+  double ivaFactura = totalFactura * IVA;
   Facturas << '\n'
            << setw(80) << "Tot.Bruto : $ " << totalFactura << '\n'
            << setw(80) << "IVA 21%   : $ " << ivaFactura << '\n'
            << setw(80) << "Total Neto: $ " << (totalFactura + ivaFactura) << '\n';
 } // EmitPieFac
 
-EmitMvtosPedidos(ofstream &MvtosPedidos, str8 idCliente, int numFactura, sFec fecha, float totalFactura)
+void EmitMvtosPedidos(ofstream &MvtosPedidos, str8 idCliente, int numFactura, sFec fecha, double totalFactura)
 {
   MvtosPedidos << setw(10) << idCliente << setw(8) << numFactura << setw(8) << fecha.year << setw(2) << setfill('0') << fecha.mes << setfill(' ') << fecha.dia << setw(12) << totalFactura  << "\n";
 } // EmitMvtosPedidos
@@ -302,20 +305,19 @@ void ProcPedidos(ifstream &Pedidos, ifstream &Clientes, ofstream &Facturas, ofst
   short numOrden = 1;
   int numFactura = 222320;
   GetDate(fecha.year, fecha.mes, fecha.dia);
-cout << fecha.year << " " << fecha.mes << " " << fecha.dia << endl;
   bool pedidoLeido = LeerPed(Pedidos, pedido);
   while (pedidoLeido)
   {
     posicion = BusBinVec(vrClientes, pedido.idCliente, canCli);
     if (posicion >= 0)
     {
-      float totalFactura = 0;
+      double totalFactura = 0;
       LeerCliByPosicion(Clientes, cliente, posicion);
       EmiteCabFac(Facturas, cliente, fecha, numFactura);
       numFactura++;
       while (pedidoLeido && strcmp(pedido.idCliente, cliente.idCliente) == 0)
       {
-        float totalItem = 0;
+        double totalItem = 0;
         BuscarArticuloPorCodigo(vrArticulos, pedido.codArticulo, articulo, canArt);
         CalcDetFac(pedido.cantPedida, articulo, numOrden, totalItem, totalFactura);
         EmiteDetFac(Facturas, articulo, numOrden, pedido.cantPedida, totalItem);

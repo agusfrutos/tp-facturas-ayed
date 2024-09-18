@@ -2,7 +2,8 @@
     6297 Cremona              entre rios 3485      Villa Maria          1702 23 11 2017 1635844.62
      725 pepe                 mitre 100            rosario              2000 9  1  2015  205892.50
      721 Uri senpai           Paleta 23            rosario              2000 9  1  2015    5892.50
-  345678 levis                av. de los combatien san isidro           2451 3  10 2009  152630.86
+  345678 Kevin                av. de los combatien san isidro           2451 3  10 2009  152630.86
     2221 ABUNDANCIA           Fidela 333           c.a.b.a.             1702 12 7  2014 4523334.78
      723 pepe jeans           mitre 234            rosario              1702 9  1  2015 3205892.50
      722 Agussan              mitre 123            Mundo Queso          2000 9  1  2015 9999999.99
+     722 Norberto             No tiene             Raymundo             9999 31 12 2001       1.00
