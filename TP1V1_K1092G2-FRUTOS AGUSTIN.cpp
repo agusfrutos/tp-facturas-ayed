@@ -242,7 +242,7 @@ void LeerCliByPosicion(ifstream &Clientes, sCli &cliente, short posicion)
 
 void EmiteCabFac(ofstream &Facturas, sCli cliente, sFec fecha, int numFactura)
 {
-  Facturas << replicate('-', 92) << '\n'
+  Facturas << '\n' << replicate('-', 92) << '\n'
            << setw(10) << "Id.Cliente" << left << "  " << setw(24) << "Razon Social" << setw(24) << "Domicilio" << setw(24) << "Localidad" << setw(12) << "Cod.Pos." << '\n'
            << right << setw(10) << cliente.idCliente << left << "  " << setw(24) << cliente.razSoc << setw(24) << cliente.domic << setw(24) << cliente.localidad << setw(12) << cliente.codPos << '\n'
            << '\n'
@@ -285,7 +285,7 @@ void EmitPieFac(ofstream &Facturas, double totalFactura)
   Facturas << '\n'
            << setw(80) << "Tot.Bruto : $ " << totalFactura << '\n'
            << setw(80) << "IVA 21%   : $ " << ivaFactura << '\n'
-           << setw(80) << "Total Neto: $ " << (totalFactura + ivaFactura) << '\n';
+           << setw(80) << "Total Neto: $ " << (totalFactura + ivaFactura);
 } // EmitPieFac
 
 void EmitMvtosPedidos(ofstream &MvtosPedidos, str8 idCliente, int numFactura, sFec fecha, double totalFactura)
