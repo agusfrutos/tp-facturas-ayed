@@ -202,10 +202,6 @@ bool LeerPed(ifstream &Pedidos, sPed &rPed)
 {
   Pedidos >> rPed.idCliente >> rPed.codArticulo >> rPed.cantPedida;
   Pedidos.ignore();
-
-  cout << rPed.idCliente << " " << rPed.codArticulo << " " <<  rPed.cantPedida<< endl;;
-  cout << "Pedidos.good: " <<  Pedidos.good() << endl;
-
   return Pedidos.good();
 }
 
@@ -280,52 +276,46 @@ void EmitMvtosPedidos(ofstream &MvtosPedidos, int idCliente, int numFactura, sFe
 void ProcPedidos(ifstream &Pedidos, ifstream &Clientes, ofstream &Facturas, ofstream &MvtosPedidos, tvrClientes vrClientes, short canCli, tvrArticulos vrArticulos, short canArt)
 {
   short posicion;
-cout << "cantidad clientes " << canCli << endl;
-cout << "cantidad articulos " << canArt << endl;
+
   sPed pedido;
   sCli rCli;
   sArt rArt;
   sFec fecha;
-
   int numFactura = 222320;
   GetDate(fecha.year, fecha.mes, fecha.dia);
-  bool pedidoLeido = LeerPed(Pedidos, pedido);
-  while (pedidoLeido)
+    int clienteAnterior = 0;
+  bool hayPedido = LeerPed(Pedidos, pedido);
+  while (hayPedido)
   {
-        posicion = BusBinVec(vrClientes, pedido.idCliente, canCli);
-        if (posicion >= 0) {
-            cout << " Cliente " << pedido.idCliente << " encontrado en posicion " << posicion << endl;
-        } else cout << " Cliente no encontrado" << endl;
+    posicion = BusBinVec(vrClientes, pedido.idCliente, canCli);
     if (posicion >= 0)
     {
       short numItem = 1;
       double totalFactura = 0;
+      cout << " " << endl;
       BusDDCli(Clientes, rCli, posicion);
+       cout << rCli.idCliente << " " << rCli.razSoc << endl;
       EmiteCabFac(Facturas, rCli, fecha, numFactura);
       numFactura++;
-     // cout << "pedido idCLiente: " << pedido.idCliente << " vs rCli idCliente: " << rCli.idCliente << endl;
-     cout << (pedidoLeido && pedido.idCliente == rCli.idCliente) << endl;
-      while (pedidoLeido && pedido.idCliente == rCli.idCliente)
-      {
+     do {
         double totalItem = 0;
         BusDDArt(vrArticulos, pedido.codArticulo, rArt, canArt);
-        cout << "Articulo pedido: " << rArt.codArticulo << " " << rArt.descripcion << rArt.precioUnitario << " " << rArt.stock << endl;
+
+         // cout << rPed.idCliente << " " << rPed.codArticulo << " " <<  rPed.cantPedida<< endl;;
         CalcDetFac(pedido.cantPedida, rArt, numItem, totalItem, totalFactura);
         EmiteDetFac(Facturas, rArt, numItem, pedido.cantPedida, totalItem);
-        pedidoLeido = LeerPed(Pedidos, pedido);
-   //   cout << "pedido leido: " << pedido.idCliente << " " << pedido.codArticulo << "pedidoLeido: " << pedidoLeido <<  endl;
+        cout << rCli.razSoc << "pidio el articulo: " << rArt.codArticulo << endl;
+        clienteAnterior = pedido.idCliente;
+        hayPedido = LeerPed(Pedidos, pedido);
+     } while (pedido.idCliente == clienteAnterior && hayPedido);
 
-      }
       EmitPieFac(Facturas, totalFactura);
       EmitMvtosPedidos(MvtosPedidos, rCli.idCliente, numFactura, fecha, totalFactura);
-      pedidoLeido = LeerPed(Pedidos, pedido);
-    // cout << "pedido leido: " << pedido.idCliente << " " << pedido.codArticulo << "pedidoLeido: " << pedidoLeido <<  endl;
 
-
+    } else  {
+         cout << rCli.idCliente << " no encontrado" << endl;
+        hayPedido = LeerPed(Pedidos, pedido);
     }
-    else pedidoLeido = LeerPed(Pedidos, pedido);
-   // cout << "holaa" << endl;
-  //  cout << "pedido leido: " << pedido.idCliente << " " << pedido.codArticulo << "pedidoLeido: " << pedidoLeido <<  endl;
   }
 }; // ProcPedidos
 

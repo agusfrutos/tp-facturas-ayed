@@ -4,5 +4,5 @@
      721 Jorge Romina         Paleta 23            Rosario              2000 9  1  2015    5892.50
   345678 Kevin                San Martin 2         San Isidro           2451 3  10 2009  152630.86
      723 Pepe Jeans           Mitre 234            Rosario              1702 9  1  2015  205892.50
-     722 Norberto             Castelli 123         Raymundo             9999 31 12 1984       1.00
+      22 Norberto             Castelli 123         Raymundo             9999 31 12 1984       1.00
       45 Johnny J             Normandia 34         Costa Esmeralda      1111 12  4 2001   22231.00
