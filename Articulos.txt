@@ -1,7 +1,7 @@
  71 Procesador Intel i7   110   34567.99
  70 RTX 3080              196   30530.58
  88 RAM 16GB DDR4          32    2490.43
-  1 RAM 32GB DDR5           2    5050.05
+  1 RAM 32GB DDR5           5    5050.05
  57 Disco Duro SSD 1TB    314   10807.25
 100 Placa Madre ATX       925   22274.09
-  2 Monitor HD ULTRA WIDE  10   10000.00
+  2 Monitor HD ULTRA WID   10   10000.00
