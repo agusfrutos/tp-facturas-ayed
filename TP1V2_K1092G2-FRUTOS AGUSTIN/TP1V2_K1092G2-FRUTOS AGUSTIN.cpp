@@ -1,13 +1,13 @@
 /*
-    # Trabajo Práctico #1:
-    Metodología-DP-ECP-Módulos-ED: Registro, Arreglo y Archivo texto.
-    Proceso de facturación y armado de pedidos de clientes.
+    # Trabajo Prï¿½ctico #1:
+    Metodologï¿½a-DP-ECP-Mï¿½dulos-ED: Registro, Arreglo y Archivo texto.
+    Proceso de facturaciï¿½n y armado de pedidos de clientes.
 
     # Fecha entrega: 25/09/2024
 
-    # Versión: 1.0.0
+    # Versiï¿½n: 1.0.0
 
-    # Comisión: K1092 Miercoles Turno noche,
+    # Comisiï¿½n: K1092 Miercoles Turno noche,
 
     # Integrantes de Grupo 2:
      Agustin Frutos  222.320-0
@@ -35,9 +35,9 @@ typedef char str20[21];
 
 struct sFec
 {
-  short year,
+  short dia,
       mes,
-      dia;
+      year;
 };
 
 struct sCli
@@ -48,11 +48,9 @@ struct sCli
   short codPos;
   sFec fechaAlta;
   float saldo;
-  short posicion;
 };
 
-struct sArt
-{
+struct sArt {
   short codArticulo;
   str20 descripcion;
   short stock;
@@ -65,8 +63,15 @@ struct sPed
   short codArticulo;
   ushort cantPedida;
 };
-typedef sCli tvrClientes[MAX_CLI-1];
-typedef sArt tvrArticulos[MAX_ART-1];
+
+struct sCliInd {
+  int idCli,
+      refCli;
+};
+
+typedef sCli tvrClientes[MAX_CLI];
+typedef sCliInd tvrCliInd[MAX_CLI];
+typedef sArt tvrArticulos[MAX_ART];
 
 string replicate(char car, unsigned n)
 {
@@ -90,20 +95,19 @@ long GetDate(short &year, short &mes, short &dia)
          timeinfo->tm_mday;
 } // GetDate
 
-void InsertarEnOrden(tvrClientes vrClientes, int idCliente, short &card)
+void InsertarEnOrden(tvrCliInd vrClientes, int idCliente, short &card)
 {
-  int i = card - 1;
-  while (i >= 0 && idCliente < vrClientes[i].idCliente)
+    int pos = card;
+  while (pos > 0 && idCliente < vrClientes[pos-1].idCli)
   {
-    vrClientes[i + 1] = vrClientes[i];
-    i--;
+    vrClientes[pos] = vrClientes[pos-1];
+    pos--;
   }
-  vrClientes[i + 1].idCliente = idCliente;
-  vrClientes[i + 1].posicion = card;
-  card++;
+  vrClientes[pos].idCli = idCliente;
+  vrClientes[pos].refCli = pos;
 } // InsertarEnOrden
 
-short BusBinVec(tvrClientes vrClientes, int idCliente, short card)
+short BusBinVec(tvrCliInd vrClientes, int idCliente, short card)
 {
   int ult = card - 1;
   int prim = 0;
@@ -111,9 +115,9 @@ short BusBinVec(tvrClientes vrClientes, int idCliente, short card)
   while (prim <= ult)
   {
     med = (prim + ult) / 2;
-    if (vrClientes[med].idCliente == idCliente)
-      return vrClientes[med].posicion;
-    else if (vrClientes[med].idCliente < idCliente)
+    if (vrClientes[med].idCli == idCliente)
+      return vrClientes[med].refCli;
+    else if (vrClientes[med].idCli < idCliente)
       prim = med + 1;
     else
       ult = med - 1;
@@ -141,7 +145,6 @@ void Cerrar(ifstream &Clientes, ifstream &Articulos, ifstream &Pedidos, ofstream
 
 bool LeerCli(ifstream &Clientes, sCli &rCli)
 {
-  Clientes.clear();
   Clientes >> rCli.idCliente;
   Clientes.ignore(1);
   Clientes.get(rCli.razSoc, 21);
@@ -158,14 +161,14 @@ bool LeerCli(ifstream &Clientes, sCli &rCli)
   return Clientes.good();
 }
 
-void ProcClientes(ifstream &Clientes, tvrClientes vrClientes, short &canCli)
+void ProcClientes(ifstream &Clientes, tvrCliInd vrClientes, short &canCli)
 {
   sCli rCliente;
-  do {
-    LeerCli(Clientes, rCliente);
+  while (LeerCli(Clientes, rCliente)) {
     InsertarEnOrden(vrClientes, rCliente.idCliente, canCli);
-  } while (Clientes.good());
-
+     canCli++;
+  }
+   Clientes.clear();
 } // ProcClientes
 
 bool LeerArt(ifstream &Articulos, sArt &rArt)
@@ -180,20 +183,15 @@ bool LeerArt(ifstream &Articulos, sArt &rArt)
 
 void AcumProductos(tvrArticulos vrArticulos, sArt rArt, short &canArt)
 {
-    vrArticulos[rArt.codArticulo].codArticulo = rArt.codArticulo;
-    strcpy(vrArticulos[rArt.codArticulo].descripcion, rArt.descripcion);
-    vrArticulos[rArt.codArticulo].precioUnitario = rArt.precioUnitario;
-    vrArticulos[rArt.codArticulo].stock = rArt.stock;
+    vrArticulos[rArt.codArticulo] = rArt;
     canArt++;
 } // AcumProductos
 
 void ProcArticulos(ifstream &Articulos, tvrArticulos vrArticulos, short &canArt)
 {
   sArt rArt;
-  do {
-    LeerArt(Articulos, rArt);
-    AcumProductos(vrArticulos, rArt, canArt);
-  } while (Articulos.good());
+   while (LeerArt(Articulos, rArt))
+     AcumProductos(vrArticulos, rArt, canArt);
 } // ProcArticulos
 
 bool LeerPed(ifstream &Pedidos, sPed &rPed)
@@ -202,26 +200,6 @@ bool LeerPed(ifstream &Pedidos, sPed &rPed)
   Pedidos.ignore();
   return Pedidos.good();
 } // LeerPed
-
-bool BusDDCli(ifstream &Clientes, sCli &rCli, short posicion)
-{
- Clientes.clear();
- Clientes.seekg(posicion * 100, ios::beg);
-  Clientes >> rCli.idCliente;
-  Clientes.ignore(1);
-  Clientes.get(rCli.razSoc, 21);
-  Clientes.ignore(1);
-  Clientes.get(rCli.domic, 21);
-  Clientes.ignore(1);
-  Clientes.get(rCli.localidad, 21);
-  Clientes >> rCli.codPos
-  >> rCli.fechaAlta.dia
-  >> rCli.fechaAlta.mes
-  >> rCli.fechaAlta.year
-  >> rCli.saldo;
-  Clientes.ignore();
-  return Clientes.good();
-} // BusDDCli
 
 void EmiteCabFac(ofstream &Facturas, sCli rCli, sFec fecha, int numFactura)
 {
@@ -272,7 +250,7 @@ void EmitMvtosPedidos(ofstream &MvtosPedidos, int idCliente, int numFactura, sFe
   MvtosPedidos << fixed << setprecision(2) << setw(8) << idCliente << " " << setw(6) << numFactura << " " << setw(4) << fecha.year << setw(2) << setfill('0') << fecha.mes << setfill(' ') << fecha.dia << setw(12) << (totalFactura + ivaFactura)  << "\n";
 } // EmitMvtosPedidos
 
-void ProcPedidos(ifstream &Pedidos, ifstream &Clientes, ofstream &Facturas, ofstream &MvtosPedidos, tvrClientes vrClientes, short canCli, tvrArticulos vrArticulos, short canArt)
+void ProcPedidos(ifstream &Pedidos, ifstream &Clientes, ofstream &Facturas, ofstream &MvtosPedidos, tvrCliInd vrClientes, short canCli, tvrArticulos vrArticulos, short canArt)
 {
   short posicion;
   sPed rPed;
@@ -281,41 +259,45 @@ void ProcPedidos(ifstream &Pedidos, ifstream &Clientes, ofstream &Facturas, ofst
   sFec fecha;
   int numFactura = 222320;
   GetDate(fecha.year, fecha.mes, fecha.dia);
-    int idClienteAnterior = 0;
-    double totalFactura = 0;
-    short numItem = 0;
-      do {
-            LeerPed(Pedidos, rPed);
-            posicion = BusBinVec(vrClientes, rPed.idCliente, canCli);
-            if (posicion >= 0)
 
-            {
-              BusDDCli(Clientes, rCli, posicion);
-              if (idClienteAnterior != rPed.idCliente) {
-                  if (idClienteAnterior) {
-                    EmitPieFac(Facturas, totalFactura);
-                    EmitMvtosPedidos(MvtosPedidos, idClienteAnterior, numFactura, fecha, totalFactura);
-                    numFactura++;
-              }
-              EmiteCabFac(Facturas, rCli, fecha, numFactura);
-              idClienteAnterior = rPed.idCliente;
-              totalFactura = 0;
-              }
-                double totalItem = 0;
-                BusDDArt(vrArticulos, rPed.codArticulo, rArt, canArt);
-                CalcDetFac(rPed.cantPedida, rArt, numItem, totalItem, totalFactura);
-                EmiteDetFac(Facturas, rArt, numItem, rPed.cantPedida, totalItem);
-              }
-      }  while (Pedidos.good());
+    short numItem = 0;
+    bool pedidoLeido = LeerPed(Pedidos, rPed);
+    while (pedidoLeido)
+     {
+         cout << rPed.idCliente << endl;
+      int numOrden = 1;
+      posicion = BusBinVec(vrClientes, rPed.idCliente, canCli);
+      double totalFactura = 0;
+      cout << "posicion encontrada en BusBinVec " << posicion << endl;
+      if (posicion >= 0)
+      {
+        Clientes.seekg(posicion * 100, ios::beg);
+        LeerCli(Clientes,rCli);
+        EmiteCabFac(Facturas, rCli, fecha, numFactura);
+        numFactura++;
+        cout << "pedidoleido " << pedidoLeido << " rPed.idCliente: " << rPed.idCliente << " rCli.idCliente: " << rCli.idCliente << endl;
+        while (pedidoLeido && rPed.idCliente == rCli.idCliente)
+        {
+          double totalItem = 0;
+          BusDDArt(vrArticulos, rPed.codArticulo, rArt, canArt);
+          CalcDetFac(rPed.cantPedida, rArt, numOrden, totalItem, totalFactura);
+          EmiteDetFac(Facturas, rArt, numOrden, rPed.cantPedida, totalItem);
+          pedidoLeido = LeerPed(Pedidos, rPed);
+        }
         EmitPieFac(Facturas, totalFactura);
-      EmitMvtosPedidos(MvtosPedidos, idClienteAnterior, numFactura, fecha, totalFactura);
+        EmitMvtosPedidos(MvtosPedidos, rCli.idCliente, numFactura, fecha, totalFactura);
+      }
+      else
+        pedidoLeido = LeerPed(Pedidos, rPed);
+  }
+
 }; // ProcPedidos
 
 int main()
 {
   ifstream Clientes, Articulos, Pedidos;
   ofstream Facturas, MvtosPedidos;
-  tvrClientes vrClientes;
+  tvrCliInd vrClientes;
   tvrArticulos vrArticulos;
 
   short canCli = 0;
@@ -326,5 +308,7 @@ int main()
   ProcArticulos(Articulos, vrArticulos, canArt);
   ProcPedidos(Pedidos, Clientes, Facturas, MvtosPedidos, vrClientes, canCli, vrArticulos, canArt);
   Cerrar(Clientes, Articulos, Pedidos, Facturas, MvtosPedidos);
+  cout << "Hola";
+
   return 0;
 }
