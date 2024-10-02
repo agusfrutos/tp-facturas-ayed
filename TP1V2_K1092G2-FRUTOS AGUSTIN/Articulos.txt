@@ -6,4 +6,4 @@
  40 Placa Madre ATX       925   22274.09
   2 Monitor HD ULTRA WID   10   10000.00
 100 Teclado RGB            77    5000.00
- 34 Mouse Inalambrico      34    3000.00
+ 34 Mouse Inalambrico      34    3000.07
