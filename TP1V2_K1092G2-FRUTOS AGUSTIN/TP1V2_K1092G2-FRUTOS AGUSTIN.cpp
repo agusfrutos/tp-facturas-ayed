@@ -1,20 +1,15 @@
 /*
-    # Trabajo Pr�ctico #1:
-    Metodolog�a-DP-ECP-M�dulos-ED: Registro, Arreglo y Archivo texto.
-    Proceso de facturaci�n y armado de pedidos de clientes.
-
+    # Trabajo Practico #1:
+    Metodologia-DP-ECP-Modulos-ED: Registro, Arreglo y Archivo texto.
+    Proceso de facturacion y armado de pedidos de clientes.
     # Fecha entrega: 25/09/2024
-
-    # Versi�n: 1.0.0
-
-    # Comisi�n: K1092 Miercoles Turno noche,
-
+    # Version: 2.0.0
+    # Comision: K1092 Miercoles Turno noche,
     # Integrantes de Grupo 2:
      Agustin Frutos  222.320-0
      Alexis Pieronee 222.600-5
      Nicolas Mancuso 222.481-1
      Lautaro Velozo  221.258-4
-
     # Nombre del compilador: Borland C++ V.5.5
 */
 #include <iostream.h>
