@@ -12,7 +12,6 @@
      Alexis Pieronee 222.600-5
      Nicolas Mancuso 222.481-1
      Lautaro Velozo  221.258-4
-
     # Nombre del compilador: Borland C++ V.5.5
 */
 #include <iostream.h>
