@@ -1,13 +1,11 @@
 /*
-    # Trabajo Pr�ctico #1:
-    Metodolog�a-DP-ECP-M�dulos-ED: Registro, Arreglo y Archivo texto.
-    Proceso de facturaci�n y armado de pedidos de clientes.
+    # Trabajo Practico #1:
+    Metodologia-DP-ECP-Modulos-ED: Registro, Arreglo y Archivo texto.
+    Proceso de facturacion y armado de pedidos de clientes.
 
-    # Fecha entrega: 25/09/2024
+    # Version: 2.0.0
 
-    # Versi�n: 1.0.0
-
-    # Comisi�n: K1092 Miercoles Turno noche,
+    # Comision: K1092 Miercoles Turno noche,
 
     # Integrantes de Grupo 2:
      Agustin Frutos  222.320-0
@@ -109,15 +107,12 @@ void InsertarEnOrden(tvrCliInd vrClientes, int idCliente, int card)
 
 int BusBinVec(tvrCliInd vrClientes, int idCliente, int card)
 {
-
   int ult = card - 1;
   int prim = 0;
   int med;
   while (prim <= ult)
   {
-      cout << "prim " << prim << " , ult " << ult << endl;
     med = (prim + ult) / 2;
-   cout << "Es el idCliente " << vrClientes[med].idCli << " igual a " << idCliente << "?"  << endl;
         if (vrClientes[med].idCli == idCliente)
       return vrClientes[med].refCli;
     else if (vrClientes[med].idCli < idCliente)
@@ -161,7 +156,6 @@ bool LeerCli(ifstream &Clientes, sCli &rCli)
   >> rCli.fechaAlta.year
   >> rCli.saldo;
   Clientes.ignore();
-  cout << "LeerCli en ProcPedidos: " <<rCli.idCliente << endl;
   return Clientes.good();
 }
 
@@ -172,7 +166,6 @@ void ProcClientes(ifstream &Clientes, tvrCliInd vrClientes, int &canCli)
     InsertarEnOrden(vrClientes, rCliente.idCliente, canCli);
      canCli++;
   }
-
 } // ProcClientes
 
 bool LeerArt(ifstream &Articulos, sArt &rArt)
@@ -266,21 +259,16 @@ void ProcPedidos(ifstream &Pedidos, ifstream &Clientes, ofstream &Facturas, ofst
     bool pedidoLeido = LeerPed(Pedidos, rPed);
     while (pedidoLeido)
      {
-        cout << "Estoy con pedido del cliente: " << rPed.idCliente << endl;
       short numOrden = 0;
-
       posicion = BusBinVec(vrClientes, rPed.idCliente, canCli);
       double totalFactura = 0;
-      cout << "posicion encontrada en BusBinVec " << posicion << endl;
       if (posicion >= 0)
       {
         Clientes.clear();
         Clientes.seekg(posicion * 100, ios::beg);
         LeerCli(Clientes,rCli);
-        cout << "el id del pedido es " << rPed.idCliente << "... , y este fue el que consegui con la posicion " << posicion << ": " << rCli.idCliente << endl;
         EmiteCabFac(Facturas, rCli, fecha, numFactura);
         numFactura++;
-       cout << "pedidoleido " << pedidoLeido << " rPed.idCliente: " << rPed.idCliente << " rCli.idCliente: " << rCli.idCliente << endl;
         while (pedidoLeido && rPed.idCliente == rCli.idCliente)
         {
           double totalItem = 0;
@@ -295,7 +283,6 @@ void ProcPedidos(ifstream &Pedidos, ifstream &Clientes, ofstream &Facturas, ofst
       else
         pedidoLeido = LeerPed(Pedidos, rPed);
   }
-
 }; // ProcPedidos
 
 int main()
@@ -304,7 +291,6 @@ int main()
   ofstream Facturas, MvtosPedidos;
   tvrCliInd vrClientes;
   tvrArticulos vrArticulos;
-
   int canCli = 0;
   short canArt = 0;
 
@@ -313,6 +299,5 @@ int main()
   ProcArticulos(Articulos, vrArticulos, canArt);
   ProcPedidos(Pedidos, Clientes, Facturas, MvtosPedidos, vrClientes, canCli, vrArticulos, canArt);
   Cerrar(Clientes, Articulos, Pedidos, Facturas, MvtosPedidos);
-
   return 0;
 }
