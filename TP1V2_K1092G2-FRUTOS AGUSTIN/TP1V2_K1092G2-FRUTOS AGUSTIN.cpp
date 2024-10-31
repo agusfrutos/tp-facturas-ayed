@@ -2,11 +2,8 @@
     # Trabajo Practico #1:
     Metodologia-DP-ECP-Modulos-ED: Registro, Arreglo y Archivo texto.
     Proceso de facturacion y armado de pedidos de clientes.
-
     # Version: 2.0.0
-
     # Comision: K1092 Miercoles Turno noche,
-
     # Integrantes de Grupo 2:
      Agustin Frutos  222.320-0
      Alexis Pieronee 222.600-5
@@ -66,7 +63,6 @@ struct sPed
   ushort cantPedida;
 };
 
-typedef sCli tvrClientes[MAX_CLI];
 typedef sCliInd tvrCliInd[MAX_CLI];
 typedef sArt tvrArticulos[MAX_ART+1];
 
