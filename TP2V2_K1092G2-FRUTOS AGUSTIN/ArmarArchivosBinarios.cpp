@@ -56,7 +56,7 @@ void ingresarFecha(sFec &fecha) {
     do {
         cout << "Dia: "; cin >> fecha.dia;
         cout << "Mes: "; cin >> fecha.mes;
-        cout << "Año: "; cin >> fecha.agno;
+        cout << "Aï¿½o: "; cin >> fecha.agno;
     } while (!validarFecha(fecha));
 }
 
@@ -85,7 +85,7 @@ void ingresarCliente(sCli &cliente) {
 }
 
 void ingresarArticulo(sArt &articulo) {
-    cout << "Codigo de Artículo: ";
+    cout << "Codigo de Artï¿½culo: ";
     cin >> articulo.codArticulo;
     cin.ignore();
 
@@ -112,7 +112,7 @@ void ingresarPedido(sPed &pedido) {
 
 
 void escribirCliente(const char* archivo) {
-    fstream clienteFile(archivo,ios::binary | ios::in | ios::out);
+    ofstream clienteFile(archivo,ios::binary | ios::app);
     if (clienteFile == NULL) {
         cout << "Error al abrir el archivo de clientes" << endl;
         return;
@@ -125,29 +125,28 @@ void escribirCliente(const char* archivo) {
 }
 
 void escribirArticulo(const char* archivo) {
-    FILE *f = fopen(archivo, "ab");
-    if (f == NULL) {
-        cout << "Error al abrir el archivo" << endl;
+    ofstream articulosFile(archivo,ios::binary | ios::app);
+
+    if (articulosFile == NULL) {
+        cout << "Error al abrir el archivo de articulos" << endl;
         return;
     }
-
     sArt articulo;
     ingresarArticulo(articulo);
-    fwrite(&articulo, sizeof(sArt), 1, f);
-    fclose(f);
+    articulosFile.write((char*) &articulo, sizeof(articulo));
+    articulosFile.close();
 }
 
 void escribirPedido(const char* archivo) {
-    FILE *f = fopen(archivo, "ab");
-    if (f == NULL) {
-        cout << "Error al abrir el archivo" << endl;
+    ofstream pedidosFile(archivo,ios::binary | ios::app);
+    if (pedidosFile == NULL) {
+        cout << "Error al abrir el archivo de pedidos" << endl;
         return;
     }
-
     sPed pedido;
     ingresarPedido(pedido);
-    fwrite(&pedido, sizeof(sPed), 1, f);
-    fclose(f);
+    pedidosFile.write((char*) &pedido, sizeof(pedido));
+    pedidosFile.close();
 }
 
 // Funciones para mostrar datos
@@ -156,8 +155,8 @@ void mostrarFecha(sFec fecha) {
 }
 
 void mostrarClientes(const char* archivo) {
-    FILE *f = fopen(archivo, "rb");
-    if (f == NULL) {
+    ifstream clientesFile(archivo, ios::binary);
+    if (clientesFile == NULL) {
         cout << "Error al abrir el archivo" << endl;
         return;
     }
@@ -166,23 +165,23 @@ void mostrarClientes(const char* archivo) {
     cout << "\nListado de Clientes:" << endl;
     cout << "===================" << endl;
 
-    while(fread(&cliente, sizeof(sCli), 1, f)) {
+    while(clientesFile.read((char*)&cliente, sizeof(sCli))) {
         cout << "\nID: " << cliente.idCliente << endl;
-       /* cout << "Razon Social: " << cliente.razSoc << endl;
+       cout << "Razon Social: " << cliente.razSoc << endl;
         cout << "Domicilio: " << cliente.domic << endl;
         cout << "Localidad: " << cliente.localidad << endl;
         cout << "Codigo Postal: " << cliente.codPos << endl;
         cout << "Fecha Alta: ";
         mostrarFecha(cliente.fechaAlta);
         cout << "\nSaldo: $" << cliente.saldo << endl;
-        cout << "-------------------" << endl;*/
+        cout << "-------------------" << endl;
     }
-    fclose(f);
+    clientesFile.close();
 }
 
 void mostrarArticulos(const char* archivo) {
-    FILE *f = fopen(archivo, "rb");
-    if (f == NULL) {
+    ifstream articulosFile(archivo, ios::binary);
+    if (articulosFile == NULL) {
         cout << "Error al abrir el archivo" << endl;
         return;
     }
@@ -191,41 +190,40 @@ void mostrarArticulos(const char* archivo) {
     cout << "\nListado de Articulos:" << endl;
     cout << "====================" << endl;
 
-    while(fread(&articulo, sizeof(sArt), 1, f)) {
+    while(articulosFile.read((char*) &articulo, sizeof articulo)) {
         cout << "\nCodigo: " << articulo.codArticulo << endl;
         cout << "Descripcion: " << articulo.descripcion << endl;
         cout << "Stock: " << articulo.stock << endl;
         cout << "Precio: $" << articulo.precioUnitario << endl;
         cout << "-------------------" << endl;
     }
-    fclose(f);
+    articulosFile.close();
 }
 
 void mostrarPedidos(const char* archivo) {
-    FILE *f = fopen(archivo, "rb");
-    if (f == NULL) {
+    ifstream pedidosFile(archivo, ios::binary);
+    if (pedidosFile == NULL) {
         cout << "Error al abrir el archivo" << endl;
         return;
     }
-
     sPed pedido;
     cout << "\nListado de Pedidos:" << endl;
     cout << "==================" << endl;
 
-    while(fread(&pedido, sizeof(sPed), 1, f)) {
+    while(pedidosFile.read((char*)&pedido, sizeof(pedido))) {
         cout << "\nCliente: " << pedido.idCliente << endl;
         cout << "Articulo: " << pedido.codArticulo << endl;
         cout << "Cantidad: " << pedido.cantPedida << endl;
         cout << "-------------------" << endl;
     }
-    fclose(f);
+    pedidosFile.close();
 }
 
 void menu() {
     int opcion;
     do {
         clrscr();
-        cout << "\nMenú Principal" << endl;
+        cout << "\nMenï¿½ Principal" << endl;
         cout << "1. Agregar Cliente" << endl;
         cout << "2. Agregar Articulo" << endl;
         cout << "3. Agregar Pedido" << endl;
@@ -264,6 +262,7 @@ void menu() {
     } while(opcion != 0);
 }
 
-void main() {
+int main() {
     menu();
+    return 0;
 }
