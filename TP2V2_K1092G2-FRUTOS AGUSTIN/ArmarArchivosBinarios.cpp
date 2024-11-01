@@ -1,14 +1,13 @@
 #include <iostream.h>
+#include <fstream>
 #include <string.h>
 #include <stdio.h>
 #include <conio.h>
 
-// Definición del tipo str20 que faltaba en las estructuras originales
 typedef char str20[21];
 
-// Definiciones de las estructuras
 struct sFec {
-    short dia, mes, year;
+    short dia, mes, agno;
 };
 
 struct sCli {
@@ -32,7 +31,6 @@ struct sPed {
     short cantPedida;
 };
 
-// Funciones para validar datos
 bool validarFecha(sFec fecha) {
     if (fecha.mes < 1 || fecha.mes > 12) return false;
     if (fecha.dia < 1) return false;
@@ -42,7 +40,7 @@ bool validarFecha(sFec fecha) {
             if (fecha.dia > 30) return false;
             break;
         case 2:
-            if ((fecha.year % 4 == 0 && fecha.year % 100 != 0) || fecha.year % 400 == 0) {
+            if ((fecha.agno % 4 == 0 && fecha.agno % 100 != 0) || fecha.agno % 400 == 0) {
                 if (fecha.dia > 29) return false;
             } else {
                 if (fecha.dia > 28) return false;
@@ -54,12 +52,11 @@ bool validarFecha(sFec fecha) {
     return true;
 }
 
-// Funciones para ingresar datos
 void ingresarFecha(sFec &fecha) {
     do {
         cout << "Dia: "; cin >> fecha.dia;
         cout << "Mes: "; cin >> fecha.mes;
-        cout << "Año: "; cin >> fecha.year;
+        cout << "Año: "; cin >> fecha.agno;
     } while (!validarFecha(fecha));
 }
 
@@ -68,7 +65,7 @@ void ingresarCliente(sCli &cliente) {
     cin >> cliente.idCliente;
     cin.ignore();
 
-    cout << "Razón Social: ";
+    cout << "Razon Social: ";
     cin.getline(cliente.razSoc, 21);
 
     cout << "Domicilio: ";
@@ -77,7 +74,7 @@ void ingresarCliente(sCli &cliente) {
     cout << "Localidad: ";
     cin.getline(cliente.localidad, 21);
 
-    cout << "Código Postal: ";
+    cout << "Codigo Postal: ";
     cin >> cliente.codPos;
 
     cout << "Fecha de Alta:\n";
@@ -88,11 +85,11 @@ void ingresarCliente(sCli &cliente) {
 }
 
 void ingresarArticulo(sArt &articulo) {
-    cout << "Código de Artículo: ";
+    cout << "Codigo de Artículo: ";
     cin >> articulo.codArticulo;
     cin.ignore();
 
-    cout << "Descripción: ";
+    cout << "Descripcion: ";
     cin.getline(articulo.descripcion, 21);
 
     cout << "Stock: ";
@@ -106,25 +103,25 @@ void ingresarPedido(sPed &pedido) {
     cout << "ID Cliente: ";
     cin >> pedido.idCliente;
 
-    cout << "Código de Artículo: ";
+    cout << "Codigo de Articulo: ";
     cin >> pedido.codArticulo;
 
     cout << "Cantidad Pedida: ";
     cin >> pedido.cantPedida;
 }
 
-// Funciones para escribir en archivos
+
 void escribirCliente(const char* archivo) {
-    FILE *f = fopen(archivo, "ab");
-    if (f == NULL) {
-        cout << "Error al abrir el archivo" << endl;
+    fstream clienteFile(archivo,ios::binary | ios::in | ios::out);
+    if (clienteFile == NULL) {
+        cout << "Error al abrir el archivo de clientes" << endl;
         return;
     }
 
     sCli cliente;
     ingresarCliente(cliente);
-    fwrite(&cliente, sizeof(sCli), 1, f);
-    fclose(f);
+    clienteFile.write((char*) &cliente, sizeof(cliente));
+    clienteFile.close();
 }
 
 void escribirArticulo(const char* archivo) {
@@ -155,7 +152,7 @@ void escribirPedido(const char* archivo) {
 
 // Funciones para mostrar datos
 void mostrarFecha(sFec fecha) {
-    cout << fecha.dia << "/" << fecha.mes << "/" << fecha.year;
+    cout << fecha.dia << "/" << fecha.mes << "/" << fecha.agno;
 }
 
 void mostrarClientes(const char* archivo) {
@@ -171,14 +168,14 @@ void mostrarClientes(const char* archivo) {
 
     while(fread(&cliente, sizeof(sCli), 1, f)) {
         cout << "\nID: " << cliente.idCliente << endl;
-        cout << "Razón Social: " << cliente.razSoc << endl;
+       /* cout << "Razon Social: " << cliente.razSoc << endl;
         cout << "Domicilio: " << cliente.domic << endl;
         cout << "Localidad: " << cliente.localidad << endl;
-        cout << "Código Postal: " << cliente.codPos << endl;
+        cout << "Codigo Postal: " << cliente.codPos << endl;
         cout << "Fecha Alta: ";
         mostrarFecha(cliente.fechaAlta);
         cout << "\nSaldo: $" << cliente.saldo << endl;
-        cout << "-------------------" << endl;
+        cout << "-------------------" << endl;*/
     }
     fclose(f);
 }
@@ -191,12 +188,12 @@ void mostrarArticulos(const char* archivo) {
     }
 
     sArt articulo;
-    cout << "\nListado de Artículos:" << endl;
+    cout << "\nListado de Articulos:" << endl;
     cout << "====================" << endl;
 
     while(fread(&articulo, sizeof(sArt), 1, f)) {
-        cout << "\nCódigo: " << articulo.codArticulo << endl;
-        cout << "Descripción: " << articulo.descripcion << endl;
+        cout << "\nCodigo: " << articulo.codArticulo << endl;
+        cout << "Descripcion: " << articulo.descripcion << endl;
         cout << "Stock: " << articulo.stock << endl;
         cout << "Precio: $" << articulo.precioUnitario << endl;
         cout << "-------------------" << endl;
@@ -217,7 +214,7 @@ void mostrarPedidos(const char* archivo) {
 
     while(fread(&pedido, sizeof(sPed), 1, f)) {
         cout << "\nCliente: " << pedido.idCliente << endl;
-        cout << "Artículo: " << pedido.codArticulo << endl;
+        cout << "Articulo: " << pedido.codArticulo << endl;
         cout << "Cantidad: " << pedido.cantPedida << endl;
         cout << "-------------------" << endl;
     }
@@ -227,36 +224,37 @@ void mostrarPedidos(const char* archivo) {
 void menu() {
     int opcion;
     do {
-        clrscr();  // Limpia la pantalla (específico de Borland)
+        clrscr();
         cout << "\nMenú Principal" << endl;
         cout << "1. Agregar Cliente" << endl;
-        cout << "2. Agregar Artículo" << endl;
+        cout << "2. Agregar Articulo" << endl;
         cout << "3. Agregar Pedido" << endl;
+        cout << "\n";
         cout << "4. Mostrar Clientes" << endl;
-        cout << "5. Mostrar Artículos" << endl;
+        cout << "5. Mostrar Articulos" << endl;
         cout << "6. Mostrar Pedidos" << endl;
         cout << "0. Salir" << endl;
-        cout << "Opción: ";
+        cout << "Opcion: ";
         cin >> opcion;
 
         switch(opcion) {
             case 1:
-                escribirCliente("CLIENTES.DAT");
+                escribirCliente("Clientes.Dat");
                 break;
             case 2:
-                escribirArticulo("ARTICULOS.DAT");
+                escribirArticulo("Articulos.Dat");
                 break;
             case 3:
-                escribirPedido("PEDIDOS.DAT");
+                escribirPedido("Pedidos.Dat");
                 break;
             case 4:
-                mostrarClientes("CLIENTES.DAT");
+                mostrarClientes("Clientes.Dat");
                 break;
             case 5:
-                mostrarArticulos("ARTICULOS.DAT");
+                mostrarArticulos("Articulos.Dat");
                 break;
             case 6:
-                mostrarPedidos("PEDIDOS.DAT");
+                mostrarPedidos("Pedidos.Dat");
                 break;
         }
         if (opcion != 0) {
