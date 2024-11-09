@@ -37,6 +37,15 @@ struct sArt
     float preUni;
 };
 
+
+struct sPed
+{
+    int idCli;
+    short codArt;
+    short stock;
+};
+
+
 struct sInfo
 {
     int idCli, posCli;
@@ -44,7 +53,7 @@ struct sInfo
 
 
 typedef sNodo<sInfo> *tListaCli;
-typedef sNodo<sArt> *vrPtrArt[CAN_ART+1];
+typedef sArt *vrPtrArt[CAN_ART+1];
 
 bool fIdCliMayor(sInfo &elem1, sInfo &elem2)
 {
@@ -126,7 +135,6 @@ void InsertarNodo(sNodo<T> *&lista, T info, bool (*criterio)(void *, void *))
     else {
         cout << "entre aca " << endl;
         InsertarEnMedio<T>(lista, info, (bool (*)(void *, void *))(criterio));
-
     }
 }
 
@@ -144,12 +152,9 @@ void MostrarLista(vrPtrArt lista)
     cout << fixed << setprecision(2);
       for (int i = 1; i <= CAN_ART; i++)
     {
-
-    while (lista[i] != NULL)
-    {
-        cout << "Articulo: " << lista[i]->info.codArt << " " << lista[i]->info.descripcion<< " " << lista[i]->info.preUni<< " " << lista[i]->info.stock << endl;
-        lista[i] = lista[i]->sgte;
-    }
+        if (lista[i] != NULL){
+        cout << "Articulo: " << lista[i]->codArt << " " << lista[i]->descripcion<< " " << lista[i]->preUni<< " " << lista[i]->stock << endl;
+        }
     }
 }
 void LiberarLista(tListaCli &lista)
@@ -165,13 +170,11 @@ void LiberarLista(vrPtrArt &lista)
 {
     for (int i = 1; i <= CAN_ART; i++)
     {
-        while (lista[i] != NULL) {
-        sNodo<sArt>* temp = lista[i];
-        lista[i] = lista[i]->sgte;
+        sArt* temp = lista[i];
         delete temp;
-        }
     }
 }
+
 void ProcClientes(ifstream &Clientes, tListaCli &lstClientes)
 {
     sCli rCli;
@@ -187,15 +190,52 @@ void ProcClientes(ifstream &Clientes, tListaCli &lstClientes)
     MostrarLista(lstClientes);
 }
 
+void InsertarArticulo(sArt* &pActual, sArt nuevoArt) {
+    sArt* newNodo = new sArt;
+    *newNodo = nuevoArt;
+    pActual = newNodo;
+}
+
 void ProcArticulos(ifstream &Articulos , vrPtrArt &vPtrArticulos) {
 
     sArt rArt;
 
     while (Articulos.read((char*)&rArt, sizeof(rArt))) {
-      InsertarNodo<sArt>(vPtrArticulos[rArt.codArt], rArt, (bool (*) (void*,void*))(fCodArtMayor));
+     InsertarArticulo(vPtrArticulos[rArt.codArt], rArt);
     }
-
     MostrarLista(vPtrArticulos);
+}
+
+int BuscarPosCli(tListaCli lstClientes, int idCli) {
+    while (lstClientes != NULL) {
+        if (lstClientes->info.idCli == idCli) {
+            return lstClientes->info.posCli;
+        } 
+
+        lstClientes = lstClientes->sgte;
+    }
+    return -1;
+}
+
+void ProcPedidos(ifstream &Pedidos, ifstream &Clientes, tListaCli &lstClientes,vrPtrArt &vPtrArticulos,ofstream &Facturas,ofstream &MovPedidos) {
+
+sCli rCli;
+sPed rPed;
+int posCli;
+    while (Pedidos.read((char*)&rPed, sizeof rPed)) {
+        cout << "\nPedido leido: " << endl;
+        cout << rPed.idCli << " " << rPed.codArt << " " << rPed.stock << endl;
+        posCli = BuscarPosCli(lstClientes, rPed.idCli);
+
+        if (posCli != -1) {
+            cout << "POSICION ENCONTRADA: " << posCli << endl;
+            Clientes.clear();
+            Clientes.seekg(posCli * sizeof(sCli), ios::beg);
+            Clientes.read((char*)&rCli, sizeof rCli);
+           cout << "Cliente leido: " << endl;
+           cout << rCli.idCli << " " << rCli.razSoc << " " << rCli.domic << endl;
+        }
+    }
 }
 
 int main()
@@ -211,7 +251,7 @@ int main()
     Abrir(Clientes, Articulos, Pedidos, Facturas, MovPedidos);
     ProcClientes(Clientes, lstClientes);
     ProcArticulos(Articulos,vPtrArticulos);
-    //   ProcPedidos(Pedidos,Clientes,ListaClientes,vPtrArticulos,Facturas,MovPedidos);
+    ProcPedidos(Pedidos,Clientes,lstClientes,vPtrArticulos,Facturas,MovPedidos);
     Cerrar(Clientes, Articulos, Pedidos, Facturas, MovPedidos);
 
     LiberarLista(lstClientes);
