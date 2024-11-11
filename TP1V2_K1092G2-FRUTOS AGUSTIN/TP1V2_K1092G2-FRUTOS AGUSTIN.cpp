@@ -11,8 +11,8 @@
      Lautaro Velozo  221.258-4
     # Nombre del compilador: Borland C++ V.5.5
 */
-#include <iostream.h>
-#include <fstream.h>
+#include <iostream>
+#include <fstream>
 #include <string.h>
 #include <conio.h>
 #include <iomanip>
